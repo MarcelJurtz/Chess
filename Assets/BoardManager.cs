@@ -22,8 +22,8 @@ public class BoardManager : MonoBehaviour
         ChessFigurePositions = new ChessFigure[8, 8];
 
         // White
-        SpawnChessFigure(0, 3, 0); // King
-        SpawnChessFigure(1, 4, 0); // Queen
+        SpawnChessFigure(0, 4, 0); // King
+        SpawnChessFigure(1, 3, 0); // Queen
         SpawnChessFigure(2, 0, 0); // Rook
         SpawnChessFigure(2, 7, 0); // Rook
         SpawnChessFigure(3, 2, 0); // Bishop
