@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+    public ChessFigure[,] ChessFigurePositions { get; set; }
+    private ChessFigure selectedFigure;
 
     private const float TILE_SIZE = 1.0f;
     private const float TILE_OFFSET = 0.5f;
@@ -13,49 +15,90 @@ public class BoardManager : MonoBehaviour
     public List<GameObject> chessFigures;
     private List<GameObject> activeFigures = new List<GameObject>();
 
+    public bool isWhiteTurn = true;
+
     void Start()
     {
+        ChessFigurePositions = new ChessFigure[8, 8];
+
         // White
-        SpawnChessFigure(0, GetTileCenter(3, 0)); // King
-        SpawnChessFigure(1, GetTileCenter(4, 0)); // Queen
-        SpawnChessFigure(2, GetTileCenter(0, 0)); // Rook
-        SpawnChessFigure(2, GetTileCenter(7, 0)); // Rook
-        SpawnChessFigure(3, GetTileCenter(2, 0)); // Bishop
-        SpawnChessFigure(3, GetTileCenter(5, 0)); // Bishop
-        SpawnChessFigure(4, GetTileCenter(1, 0)); // Knight
-        SpawnChessFigure(4, GetTileCenter(6, 0)); // Knight
-        SpawnChessFigure(5, GetTileCenter(0, 1));
-        SpawnChessFigure(5, GetTileCenter(1, 1));
-        SpawnChessFigure(5, GetTileCenter(2, 1));
-        SpawnChessFigure(5, GetTileCenter(3, 1));
-        SpawnChessFigure(5, GetTileCenter(4, 1));
-        SpawnChessFigure(5, GetTileCenter(5, 1));
-        SpawnChessFigure(5, GetTileCenter(6, 1));
-        SpawnChessFigure(5, GetTileCenter(7, 1));
+        SpawnChessFigure(0, 3, 0); // King
+        SpawnChessFigure(1, 4, 0); // Queen
+        SpawnChessFigure(2, 0, 0); // Rook
+        SpawnChessFigure(2, 7, 0); // Rook
+        SpawnChessFigure(3, 2, 0); // Bishop
+        SpawnChessFigure(3, 5, 0); // Bishop
+        SpawnChessFigure(4, 1, 0); // Knight
+        SpawnChessFigure(4, 6, 0); // Knight
+        SpawnChessFigure(5, 0, 1);
+        SpawnChessFigure(5, 1, 1);
+        SpawnChessFigure(5, 2, 1);
+        SpawnChessFigure(5, 3, 1);
+        SpawnChessFigure(5, 4, 1);
+        SpawnChessFigure(5, 5, 1);
+        SpawnChessFigure(5, 6, 1);
+        SpawnChessFigure(5, 7, 1);
 
         // Black
-        SpawnChessFigure(6, GetTileCenter(4, 7)); // King
-        SpawnChessFigure(7, GetTileCenter(3, 7)); // Queen
-        SpawnChessFigure(8, GetTileCenter(0, 7)); // Rook
-        SpawnChessFigure(8, GetTileCenter(7, 7)); // Rook
-        SpawnChessFigure(9, GetTileCenter(2, 7)); // Bishop
-        SpawnChessFigure(9, GetTileCenter(5, 7)); // Bishop
-        SpawnChessFigure(10, GetTileCenter(1, 7)); // Knight
-        SpawnChessFigure(10, GetTileCenter(6, 7)); // Knight
-        SpawnChessFigure(11, GetTileCenter(0, 6));
-        SpawnChessFigure(11, GetTileCenter(1, 6));
-        SpawnChessFigure(11, GetTileCenter(2, 6));
-        SpawnChessFigure(11, GetTileCenter(3, 6));
-        SpawnChessFigure(11, GetTileCenter(4, 6));
-        SpawnChessFigure(11, GetTileCenter(5, 6));
-        SpawnChessFigure(11, GetTileCenter(6, 6));
-        SpawnChessFigure(11, GetTileCenter(7, 6));
+        SpawnChessFigure(6, 4, 7); // King
+        SpawnChessFigure(7, 3, 7); // Queen
+        SpawnChessFigure(8, 0, 7); // Rook
+        SpawnChessFigure(8, 7, 7); // Rook
+        SpawnChessFigure(9, 2, 7); // Bishop
+        SpawnChessFigure(9, 5, 7); // Bishop
+        SpawnChessFigure(10, 1, 7); // Knight
+        SpawnChessFigure(10, 6, 7); // Knight
+        SpawnChessFigure(11, 0, 6);
+        SpawnChessFigure(11, 1, 6);
+        SpawnChessFigure(11, 2, 6);
+        SpawnChessFigure(11, 3, 6);
+        SpawnChessFigure(11, 4, 6);
+        SpawnChessFigure(11, 5, 6);
+        SpawnChessFigure(11, 6, 6);
+        SpawnChessFigure(11, 7, 6);
     }
 
     void Update()
     {
         DrawChessBoard();
         UpdateSelection();
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            if(selectionX >= 0 && selectionY >= 0)
+            {
+                if(selectedFigure == null)
+                {
+                    // Select Figure
+                    SelectChessFigure(selectionX, selectionY);
+                }
+                else
+                {
+                    // Move Figure
+                    MoveChessFigure(selectionX, selectionY);
+                }
+            }
+        }
+    }
+
+    private void SelectChessFigure(int x, int y)
+    {
+        if (ChessFigurePositions[x, y] == null) return;
+        if (ChessFigurePositions[x, y].isWhite != isWhiteTurn) return;
+        selectedFigure = ChessFigurePositions[x, y];
+    }
+
+    private void MoveChessFigure(int x, int y)
+    {
+        if(selectedFigure.PossibleMove(x,y))
+        {
+            ChessFigurePositions[selectedFigure.CurrentX, selectedFigure.CurrentY] = null;
+            selectedFigure.transform.position = GetTileCenter(x, y);
+            ChessFigurePositions[x, y] = selectedFigure;
+            isWhiteTurn = !isWhiteTurn;
+        }
+
+        selectedFigure = null;
     }
 
     private void DrawChessBoard()
@@ -103,10 +146,12 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    private void SpawnChessFigure(int index, Vector3 position)
+    private void SpawnChessFigure(int index, int x, int y)
     {
-        GameObject go = Instantiate(chessFigures[index], position, chessFigures[index].transform.rotation) as GameObject;
+        GameObject go = Instantiate(chessFigures[index], GetTileCenter(x, y), chessFigures[index].transform.rotation) as GameObject;
         go.transform.SetParent(transform);
+        ChessFigurePositions[x, y] = go.GetComponent<ChessFigure>();
+        ChessFigurePositions[x, y].SetPosition(x, y);
         activeFigures.Add(go);
     }
 
