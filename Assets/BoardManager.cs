@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+    public static BoardManager Instance { get; set; }
+    private bool[,] allowedMoves { get; set; }
+
     public ChessFigure[,] ChessFigurePositions { get; set; }
     private ChessFigure selectedFigure;
 
@@ -19,6 +22,7 @@ public class BoardManager : MonoBehaviour
 
     void Start()
     {
+        Instance = this;
         ChessFigurePositions = new ChessFigure[8, 8];
 
         // White
@@ -85,19 +89,25 @@ public class BoardManager : MonoBehaviour
     {
         if (ChessFigurePositions[x, y] == null) return;
         if (ChessFigurePositions[x, y].isWhite != isWhiteTurn) return;
+
+        allowedMoves = ChessFigurePositions[x, y].PossibleMove();
+
         selectedFigure = ChessFigurePositions[x, y];
+        BoardHighlighting.Instance.HighlightAllowedMoves(allowedMoves);
     }
 
     private void MoveChessFigure(int x, int y)
     {
-        if(selectedFigure.PossibleMove(x,y))
+        if(allowedMoves[x,y])
         {
             ChessFigurePositions[selectedFigure.CurrentX, selectedFigure.CurrentY] = null;
             selectedFigure.transform.position = GetTileCenter(x, y);
+            selectedFigure.SetPosition(x, y);
             ChessFigurePositions[x, y] = selectedFigure;
             isWhiteTurn = !isWhiteTurn;
         }
 
+        BoardHighlighting.Instance.HideHighlights();
         selectedFigure = null;
     }
 
