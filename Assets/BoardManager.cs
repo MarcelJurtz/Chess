@@ -100,6 +100,18 @@ public class BoardManager : MonoBehaviour
     {
         if(allowedMoves[x,y])
         {
+            ChessFigure c = ChessFigurePositions[x, y];
+            if(c != null && c.isWhite != isWhiteTurn)
+            {
+                activeFigures.Remove(c.gameObject);
+                Destroy(c.gameObject);
+
+                if(c.GetType() == typeof(King))
+                {
+                    // Game Over
+                }
+            }
+
             ChessFigurePositions[selectedFigure.CurrentX, selectedFigure.CurrentY] = null;
             selectedFigure.transform.position = GetTileCenter(x, y);
             selectedFigure.SetPosition(x, y);
