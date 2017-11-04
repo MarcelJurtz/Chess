@@ -25,41 +25,7 @@ public class BoardManager : MonoBehaviour
         Instance = this;
         ChessFigurePositions = new ChessFigure[8, 8];
 
-        // White
-        SpawnChessFigure(0, 4, 0); // King
-        SpawnChessFigure(1, 3, 0); // Queen
-        SpawnChessFigure(2, 0, 0); // Rook
-        SpawnChessFigure(2, 7, 0); // Rook
-        SpawnChessFigure(3, 2, 0); // Bishop
-        SpawnChessFigure(3, 5, 0); // Bishop
-        SpawnChessFigure(4, 1, 0); // Knight
-        SpawnChessFigure(4, 6, 0); // Knight
-        SpawnChessFigure(5, 0, 1);
-        SpawnChessFigure(5, 1, 1);
-        SpawnChessFigure(5, 2, 1);
-        SpawnChessFigure(5, 3, 1);
-        SpawnChessFigure(5, 4, 1);
-        SpawnChessFigure(5, 5, 1);
-        SpawnChessFigure(5, 6, 1);
-        SpawnChessFigure(5, 7, 1);
-
-        // Black
-        SpawnChessFigure(6, 4, 7); // King
-        SpawnChessFigure(7, 3, 7); // Queen
-        SpawnChessFigure(8, 0, 7); // Rook
-        SpawnChessFigure(8, 7, 7); // Rook
-        SpawnChessFigure(9, 2, 7); // Bishop
-        SpawnChessFigure(9, 5, 7); // Bishop
-        SpawnChessFigure(10, 1, 7); // Knight
-        SpawnChessFigure(10, 6, 7); // Knight
-        SpawnChessFigure(11, 0, 6);
-        SpawnChessFigure(11, 1, 6);
-        SpawnChessFigure(11, 2, 6);
-        SpawnChessFigure(11, 3, 6);
-        SpawnChessFigure(11, 4, 6);
-        SpawnChessFigure(11, 5, 6);
-        SpawnChessFigure(11, 6, 6);
-        SpawnChessFigure(11, 7, 6);
+        SpawnAllChessFigures();
     }
 
     void Update()
@@ -90,7 +56,27 @@ public class BoardManager : MonoBehaviour
         if (ChessFigurePositions[x, y] == null) return;
         if (ChessFigurePositions[x, y].isWhite != isWhiteTurn) return;
 
+        bool hasAtLeastOneMove = false;
         allowedMoves = ChessFigurePositions[x, y].PossibleMove();
+
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                if(allowedMoves[i,j])
+                {
+                    hasAtLeastOneMove = true;
+
+                    // break outer loop
+                    i = 7;
+
+                    // break inner loop
+                    break;
+                }
+            }
+        }
+
+        if (!hasAtLeastOneMove) return;
 
         selectedFigure = ChessFigurePositions[x, y];
         BoardHighlighting.Instance.HighlightAllowedMoves(allowedMoves);
@@ -108,7 +94,8 @@ public class BoardManager : MonoBehaviour
 
                 if(c.GetType() == typeof(King))
                 {
-                    // Game Over
+                    EndGame();
+                    return;
                 }
             }
 
@@ -183,5 +170,60 @@ public class BoardManager : MonoBehaviour
         origin.x += (TILE_SIZE * x) + TILE_OFFSET;
         origin.z += (TILE_SIZE * y) + TILE_OFFSET;
         return origin;
+    }
+
+    private void SpawnAllChessFigures()
+    {
+        // White
+        SpawnChessFigure(0, 4, 0); // King
+        SpawnChessFigure(1, 3, 0); // Queen
+        SpawnChessFigure(2, 0, 0); // Rook
+        SpawnChessFigure(2, 7, 0); // Rook
+        SpawnChessFigure(3, 2, 0); // Bishop
+        SpawnChessFigure(3, 5, 0); // Bishop
+        SpawnChessFigure(4, 1, 0); // Knight
+        SpawnChessFigure(4, 6, 0); // Knight
+        SpawnChessFigure(5, 0, 1);
+        SpawnChessFigure(5, 1, 1);
+        SpawnChessFigure(5, 2, 1);
+        SpawnChessFigure(5, 3, 1);
+        SpawnChessFigure(5, 4, 1);
+        SpawnChessFigure(5, 5, 1);
+        SpawnChessFigure(5, 6, 1);
+        SpawnChessFigure(5, 7, 1);
+
+        // Black
+        SpawnChessFigure(6, 4, 7); // King
+        SpawnChessFigure(7, 3, 7); // Queen
+        SpawnChessFigure(8, 0, 7); // Rook
+        SpawnChessFigure(8, 7, 7); // Rook
+        SpawnChessFigure(9, 2, 7); // Bishop
+        SpawnChessFigure(9, 5, 7); // Bishop
+        SpawnChessFigure(10, 1, 7); // Knight
+        SpawnChessFigure(10, 6, 7); // Knight
+        SpawnChessFigure(11, 0, 6);
+        SpawnChessFigure(11, 1, 6);
+        SpawnChessFigure(11, 2, 6);
+        SpawnChessFigure(11, 3, 6);
+        SpawnChessFigure(11, 4, 6);
+        SpawnChessFigure(11, 5, 6);
+        SpawnChessFigure(11, 6, 6);
+        SpawnChessFigure(11, 7, 6);
+    }
+
+    private void EndGame()
+    {
+        if (isWhiteTurn)
+            Debug.Log("White team won!");
+        else
+            Debug.Log("Black team won!");
+
+        foreach (GameObject go in activeFigures)
+            Destroy(go);
+
+        isWhiteTurn = true;
+        BoardHighlighting.Instance.HideHighlights();
+        SpawnAllChessFigures();
+        Debug.Log("White turn: " + isWhiteTurn);
     }
 }
