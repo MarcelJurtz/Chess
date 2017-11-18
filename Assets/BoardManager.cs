@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,11 +19,16 @@ public class BoardManager : MonoBehaviour
     public List<GameObject> chessFigures;
     private List<GameObject> activeFigures = new List<GameObject>();
 
+    private ChessAI ai;
+
     public bool isWhiteTurn = true;
 
     void Start()
     {
         Instance = this;
+
+        ai = new ChessAI();
+
         ChessFigurePositions = new ChessFigure[8, 8];
 
         SpawnAllChessFigures();
@@ -49,6 +55,21 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+
+        // AI should be black player
+        if(!isWhiteTurn)
+        {
+            Vector2 aiMove = new Vector2();
+            Debug.Log(String.Format("Initial Values: x = {0}, y = {1}", aiMove.x, aiMove.y));
+            do
+            {
+                selectedFigure = ai.SelectChessFigure();
+                aiMove = ai.MakeMove(selectedFigure);
+                Debug.Log(String.Format("{0} - {1}", aiMove.x, aiMove.y));
+            } while (aiMove.x < 0 && aiMove.y < 0);
+
+            MoveChessFigure((int)Math.Round(aiMove.x), (int)Math.Round(aiMove.y));
+        } 
     }
 
     private void SelectChessFigure(int x, int y)
@@ -225,5 +246,10 @@ public class BoardManager : MonoBehaviour
         BoardHighlighting.Instance.HideHighlights();
         SpawnAllChessFigures();
         Debug.Log("White turn: " + isWhiteTurn);
+    }
+
+    public List<GameObject> GetAllActiveFigures()
+    {
+        return activeFigures;
     }
 }

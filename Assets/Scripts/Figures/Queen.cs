@@ -18,16 +18,12 @@ public class Queen : ChessFigure
         while (true)
         {
             i--;
-            if (i < 0)
-                break;
+            if (i < 0) break;
             c = BoardManager.Instance.ChessFigurePositions[i, CurrentY];
             if (c == null) r[i, CurrentY] = true;
             else
             {
-                if (c.isWhite != isWhite)
-                {
-                    r[i, CurrentY] = true;
-                }
+                if (c.isWhite != isWhite) r[i, CurrentY] = true;
                 break;
             }
         }
